@@ -7,12 +7,17 @@ import pandas as pd
 austin_intakes = pd.read_csv('Austin Animal Center Intakes.csv')
 austin_outcomes = pd.read_csv('Austin Animal Center Outcomes.csv')
 
+# Print column names to debug KeyError
+print(austin_intakes.columns)
+print(austin_outcomes.columns)
+
 # Merge Intakes and Outcomes on 'Animal ID'
 df = pd.merge(austin_intakes, austin_outcomes, on='Animal ID')
 
 # Data cleaning and feature engineering
-df['Intake Date'] = pd.to_datetime(df['Intake Date'])
-df['Outcome Date'] = pd.to_datetime(df['Outcome Date'])
+# Update column names based on the actual names in your CSV files
+df['Intake Date'] = pd.to_datetime(df['Intake Date'])  # Change 'Intake Date' if the name is different
+df['Outcome Date'] = pd.to_datetime(df['Outcome Date'])  # Change 'Outcome Date' if the name is different
 df['Intake Year'] = df['Intake Date'].dt.year
 df['Outcome Year'] = df['Outcome Date'].dt.year
 

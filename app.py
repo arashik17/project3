@@ -19,36 +19,24 @@ df['Outcome Year'] = df['Outcome Date'].dt.year
 # Initialize Dash app
 app = dash.Dash(__name__)
 
-# Graph 1: Scatter plot of intake condition by year
-scatter_fig = px.scatter(df, x='Intake Year', y='Intake Condition', color='Animal Type_x', title="Intake Condition by Year")
-
-# Graph 2: Bar chart of adoptions by year
-bar_fig = px.bar(df[df['Outcome Type'] == 'Adoption'], x='Outcome Year', y='Animal ID', title="Adoptions by Year", color='Animal Type_y')
-
-# Graph 3: Pie chart showing outcomes in 2020
-pie_fig = px.pie(df[df['Outcome Year'] == 2020], names='Outcome Type', title="Animal Outcomes in 2020")
-
-# Define the layout of the app
+# Layout of the app
 app.layout = html.Div([
     html.H1("Austin Animal Shelter Dashboard"),
 
-    html.H2("Intake Condition by Year"),
-    dcc.Graph(
-        id='intake-condition-scatter',
-        figure=scatter_fig
+    # Dropdown for selecting which graph to show
+    html.Label("Select Graph:"),
+    dcc.Dropdown(
+        id='graph-selector',
+        options=[
+            {'label': 'Scatter Plot: Intake Condition by Year', 'value': 'scatter'},
+            {'label': 'Bar Chart: Adoptions by Year', 'value': 'bar'},
+            {'label': 'Pie Chart: Animal Outcomes in 2020', 'value': 'pie'}
+        ],
+        value='scatter'  # Default selection
     ),
 
-    html.H2("Adoptions by Year"),
-    dcc.Graph(
-        id='adoptions-bar',
-        figure=bar_fig
-    ),
-
-    html.H2("Animal Outcomes in 2020"),
-    dcc.Graph(
-        id='outcomes-pie',
-        figure=pie_fig
-    ),
+    # Graph placeholder for interactive updates
+    dcc.Graph(id='main-graph'),
 
     html.H3("Summary"),
     html.P("This dashboard provides insights into animal intakes and outcomes in Austin Animal Shelter."),
@@ -58,6 +46,30 @@ app.layout = html.Div([
         html.H4("Student ID: 1231400017")
     ])
 ])
+
+# Callback to update the graph based on dropdown selection
+@app.callback(
+    dash.dependencies.Output('main-graph', 'figure'),
+    [dash.dependencies.Input('graph-selector', 'value')]
+)
+def update_graph(selected_graph):
+    if selected_graph == 'scatter':
+        # Scatter plot of intake condition by year
+        scatter_fig = px.scatter(df, x='Intake Year', y='Intake Condition', color='Animal Type_x',
+                                 title="Intake Condition by Year")
+        return scatter_fig
+
+    elif selected_graph == 'bar':
+        # Bar chart of adoptions by year
+        bar_fig = px.bar(df[df['Outcome Type'] == 'Adoption'], x='Outcome Year', y='Animal ID',
+                         title="Adoptions by Year", color='Animal Type_y')
+        return bar_fig
+
+    elif selected_graph == 'pie':
+        # Pie chart showing outcomes in 2020
+        pie_fig = px.pie(df[df['Outcome Year'] == 2020], names='Outcome Type',
+                         title="Animal Outcomes in 2020")
+        return pie_fig
 
 # Expose the Flask server for deployment
 server = app.server
